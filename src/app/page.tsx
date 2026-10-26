@@ -1,41 +1,53 @@
-import { getCurrentWeather } from "@/lib/weather/current";
-import { searchLocations } from "@/lib/weather/geocoding";
+import Link from "next/link";
+import { CitySearch } from "../components/CitySearch";
+import { siteName } from "../lib/site";
+import { buildWeatherHref } from "../lib/weather/href";
+import { POPULAR_PLACES } from "../lib/weather/popular";
 
-export default async function HomePage() {
-  const [place] = await searchLocations("Damascus", 1);
-
-  if (!place) {
-    return <main className="p-8">Location not found.</main>;
-  }
-
-  const weather = await getCurrentWeather(place.lat, place.lon);
-
+export default function HomePage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <section className="w-full max-w-sm rounded-3xl bg-neutral-900 p-8 text-white shadow-xl">
-        <p className="text-sm uppercase tracking-widest text-neutral-400">
-          {weather.place.name}, {weather.place.country}
-        </p>
-        <p className="mt-4 text-7xl font-bold">{Math.round(weather.temp)}°</p>
-        <p className="mt-2 text-lg capitalize">
-          {weather.condition.description}
-        </p>
+    <div className="flex flex-1 flex-col items-center justify-center bg-linear-to-b from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-24 text-center">
+      <h1 className="animate-fade-up text-5xl font-bold sm:text-7xl">
+        {siteName}
+      </h1>
+      <p
+        className="animate-fade-up mt-4 max-w-md text-lg text-slate-100"
+        style={{ animationDelay: "120ms" }}
+      >
+        Live weather for any city, with a sky that matches the conditions.
+      </p>
 
-        <dl className="mt-6 grid grid-cols-3 gap-4 text-sm">
-          <div>
-            <dt className="text-neutral-400">Feels like</dt>
-            <dd>{Math.round(weather.feelsLike)}°</dd>
-          </div>
-          <div>
-            <dt className="text-neutral-400">Humidity</dt>
-            <dd>{weather.humidity}%</dd>
-          </div>
-          <div>
-            <dt className="text-neutral-400">Wind</dt>
-            <dd>{weather.windSpeed} m/s</dd>
-          </div>
-        </dl>
+      <div
+        className="animate-fade-up mt-8 flex w-full justify-center"
+        style={{ animationDelay: "240ms" }}
+      >
+        <CitySearch />
+      </div>
+
+      <section
+        aria-labelledby="popular-heading"
+        className="animate-fade-up mt-12"
+        style={{ animationDelay: "360ms" }}
+      >
+        <h2
+          id="popular-heading"
+          className="text-sm font-semibold uppercase tracking-widest text-sky-300"
+        >
+          Popular cities
+        </h2>
+        <ul className="mt-4 flex flex-wrap justify-center gap-2">
+          {POPULAR_PLACES.map((place) => (
+            <li key={place.name}>
+              <Link
+                href={buildWeatherHref(place)}
+                className="inline-block rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15 active:scale-95"
+              >
+                {place.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
-    </main>
+    </div>
   );
 }
