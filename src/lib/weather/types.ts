@@ -37,3 +37,29 @@ export interface CurrentWeather {
   timezoneOffset: number; // فرق التوقيت عن UTC بالثواني
   isDay: boolean;
 }
+export interface ForecastCondition {
+  id: number; // بنفس ترقيم OpenWeather، فنستخدم نفس الأيقونات والألوان
+  label: string;
+}
+
+export interface HourlyPoint {
+  time: string; // وقت محلي للمدينة: "2026-10-20T14:00"
+  temp: number;
+  condition: ForecastCondition;
+  isDay: boolean;
+  precipChance?: number;
+}
+
+export interface DailyPoint {
+  date: string; // "2026-10-20"
+  condition: ForecastCondition;
+  tempMax: number;
+  tempMin: number;
+  precipChance?: number;
+}
+
+export interface Forecast {
+  now: string; // الوقت المحلي الحالي للمدينة
+  daily: DailyPoint[];
+  hourly: HourlyPoint[];
+}

@@ -8,7 +8,9 @@ import {
   type RawSearchParams,
 } from "../../lib/weather/params";
 
-type Props = { searchParams: Promise<RawSearchParams> };
+type Props = {
+  searchParams: Promise<RawSearchParams>;
+};
 
 export async function generateMetadata({
   searchParams,
@@ -17,21 +19,24 @@ export async function generateMetadata({
 
   return {
     title: request?.name ? `Weather in ${request.name}` : "Weather",
-    robots: { index: false }, // روابط الإحداثيات ما لازم تنفهرس (نتعامل مع الـ SEO باليوم 7)
+    robots: { index: false },
   };
 }
 
-export default async function WeatherPage({ searchParams }: Props) {
+async function WeatherContent({ searchParams }: Props) {
   const request = parseWeatherParams(await searchParams);
-  if (!request) redirect("/"); // رابط ناقص أو غير صالح: نرجع للرئيسية
 
+  if (!request) {
+    redirect("/");
+  }
+
+  return <CurrentWeatherView request={request} />;
+}
+
+export default function WeatherPage({ searchParams }: Props) {
   return (
-    // الـ key بيعيد إظهار الـ Skeleton مع كل مدينة أو وحدة جديدة
-    <Suspense
-      key={`${request.lat},${request.lon},${request.units}`}
-      fallback={<WeatherSkeleton />}
-    >
-      <CurrentWeatherView request={request} />
+    <Suspense fallback={<WeatherSkeleton />}>
+      <WeatherContent searchParams={searchParams} />
     </Suspense>
   );
 }

@@ -46,3 +46,20 @@ export function formatLocalTime(
     timeZone: "UTC",
   }).format(new Date((unixSeconds + offsetSeconds) * 1000));
 }
+// نص الوقت المحلي (بدون منطقة زمنية): نعامله كأنه UTC فيظهر كما هو بدون أي تحويل
+export function formatWallClock(
+  iso: string,
+  options: Intl.DateTimeFormatOptions,
+) {
+  const normalized =
+    iso.length === 10
+      ? `${iso}T00:00:00Z`
+      : iso.length === 16
+        ? `${iso}:00Z`
+        : `${iso}Z`;
+
+  return new Intl.DateTimeFormat("en-US", {
+    ...options,
+    timeZone: "UTC",
+  }).format(new Date(normalized));
+}

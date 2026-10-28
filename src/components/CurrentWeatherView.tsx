@@ -1,4 +1,6 @@
 import {
+  ArrowDown,
+  ArrowUp,
   Cloud,
   CloudRain,
   Droplets,
@@ -11,6 +13,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { getCurrentWeather } from "../lib/weather/current";
+import { getForecastOrNull } from "../lib/weather/forecast";
 import {
   degreesToCompass,
   formatDistance,
@@ -22,6 +25,8 @@ import type { WeatherRequest } from "../lib/weather/params";
 import { getSkyGradient } from "../lib/weather/theme";
 import { CitySearch } from "./CitySearch";
 import { ConditionIcon } from "./ConditionIcon";
+import { DailyForecastList } from "./DailyForecastList";
+import { HourlyForecastStrip } from "./HourlyForecastStrip";
 import { UnitsToggle } from "./UnitsToggle";
 
 interface DetailCardProps {
@@ -52,8 +57,17 @@ export async function CurrentWeatherView({
   request: WeatherRequest;
 }) {
   const { units } = request;
-  const weather = await getCurrentWeather(request.lat, request.lon, units);
+
+  // الطلبين بنفس الوقت: وإذا فشلت التوقعات، الطقس الحالي بيظهر عادي
+  const [weather, forecast] = await Promise.all([
+    getCurrentWeather(request.lat, request.lon, units),
+    getForecastOrNull(request.lat, request.lon, units),
+  ]);
+
   const { condition, timezoneOffset: offset } = weather;
+
+  const todayDate = forecast?.now.slice(0, 10) ?? "";
+  const todayRange = forecast?.daily.find((day) => day.date === todayDate);
 
   // نفضّل الاسم اللي اختاره المستخدم، لأن اسم OpenWeather ممكن يكون حي أو محطة قريبة
   const name = request.name ?? weather.place.name;
@@ -194,6 +208,21 @@ export async function CurrentWeatherView({
               <p className="mt-1 text-slate-100">
                 Feels like {formatTemp(weather.feelsLike)}
               </p>
+
+              {todayRange && (
+                <p className="mt-1 flex items-center gap-4 text-slate-100">
+                  <span className="flex items-center gap-1">
+                    <ArrowUp aria-hidden="true" className={iconClass} />
+                    <span className="sr-only">High </span>
+                    {formatTemp(todayRange.tempMax)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <ArrowDown aria-hidden="true" className={iconClass} />
+                    <span className="sr-only">Low </span>
+                    {formatTemp(todayRange.tempMin)}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -201,6 +230,21 @@ export async function CurrentWeatherView({
             <UnitsToggle place={place} units={units} />
           </div>
         </section>
+
+        {forecast ? (
+          <>
+            <HourlyForecastStrip hourly={forecast.hourly} />
+            <DailyForecastList daily={forecast.daily} today={todayDate} />
+          </>
+        ) : (
+          <p
+            role="status"
+            className="mt-10 rounded-2xl bg-black/20 p-4 text-slate-100 ring-1 ring-white/10"
+          >
+            The forecast is temporarily unavailable. Current conditions are
+            still up to date.
+          </p>
+        )}
 
         <section aria-labelledby="details-heading" className="mt-10">
           <h2 id="details-heading" className="mb-4 text-lg font-semibold">
