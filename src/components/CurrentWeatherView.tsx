@@ -23,7 +23,7 @@ import {
 } from "../lib/weather/format";
 import type { WeatherRequest } from "../lib/weather/params";
 import { getSkyGradient } from "../lib/weather/theme";
-import { CitySearch } from "./CitySearch";
+import { FindPlace } from "./FindPlace";
 import { ConditionIcon } from "./ConditionIcon";
 import { DailyForecastList } from "./DailyForecastList";
 import { HourlyForecastStrip } from "./HourlyForecastStrip";
@@ -173,7 +173,7 @@ export async function CurrentWeatherView({
       className={`animate-fade-in flex-1 bg-linear-to-b ${getSkyGradient(condition.id, weather.isDay)}`}
     >
       <div className="mx-auto max-w-5xl px-4 pb-16 pt-24">
-        <CitySearch units={units} />
+        <FindPlace units={units} />
 
         <section aria-labelledby="place-heading" className="mt-10">
           <p className="text-sm text-slate-100">

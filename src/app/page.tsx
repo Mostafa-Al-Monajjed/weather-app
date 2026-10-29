@@ -1,12 +1,52 @@
+import { MapPin } from "lucide-react";
+import { headers } from "next/headers";
 import Link from "next/link";
-import { CitySearch } from "../components/CitySearch";
+import { AutoLocate } from "../components/AutoLocate";
+import { FindPlace } from "../components/FindPlace";
+import { LastLocationLink } from "../components/LocationPreferences";
 import { siteName } from "../lib/site";
 import { buildWeatherHref } from "../lib/weather/href";
+import { parseWeatherParams } from "../lib/weather/params";
 import { POPULAR_PLACES } from "../lib/weather/popular";
+import type { Place } from "../lib/weather/types";
 
-export default function HomePage() {
+function safeDecode(value: string) {
+  try {
+    return decodeURIComponent(value); // اسم المدينة ممكن يجي مُرمّز بالهيدر
+  } catch {
+    return value;
+  }
+}
+
+// موقع تقريبي من عنوان IP (Vercel فقط). محليًا أو لو غابت الهيدرات: null
+async function getApproximatePlace(): Promise<Place | null> {
+  const requestHeaders = await headers();
+
+  const coords = parseWeatherParams({
+    lat: requestHeaders.get("x-vercel-ip-latitude") ?? undefined,
+    lon: requestHeaders.get("x-vercel-ip-longitude") ?? undefined,
+  });
+  const city = requestHeaders.get("x-vercel-ip-city");
+  if (!coords || !city) return null;
+
+  const country = requestHeaders.get("x-vercel-ip-country") ?? undefined;
+
+  return {
+    name: safeDecode(city).slice(0, 60),
+    country: country && /^[A-Z]{2}$/.test(country) ? country : undefined,
+    lat: coords.lat,
+    lon: coords.lon,
+  };
+}
+
+export default async function HomePage() {
+  // قراءة الهيدرات بتخلي الصفحة ديناميكية (بتتحدد لكل زائر)
+  const approximate = await getApproximatePlace();
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center bg-linear-to-b from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-24 text-center">
+      <AutoLocate />
+
       <h1 className="animate-fade-up text-5xl font-bold sm:text-7xl">
         {siteName}
       </h1>
@@ -18,10 +58,30 @@ export default function HomePage() {
       </p>
 
       <div
-        className="animate-fade-up mt-8 flex w-full justify-center"
+        className="animate-fade-up mt-8 flex w-full flex-col items-center"
         style={{ animationDelay: "240ms" }}
       >
-        <CitySearch />
+        <FindPlace />
+      </div>
+
+      <div
+        className="animate-fade-up mt-6 flex flex-wrap justify-center gap-2 empty:hidden"
+        style={{ animationDelay: "300ms" }}
+      >
+        <LastLocationLink />
+        {approximate && (
+          <Link
+            href={buildWeatherHref(approximate)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-sky-300/40 bg-sky-300/10 px-4 py-2 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-sky-300/20 active:scale-95"
+          >
+            <MapPin aria-hidden="true" className="h-4 w-4 text-sky-300" />
+            <span className="sr-only">
+              Approximate location from your network:{" "}
+            </span>
+            {approximate.name}
+            <span className="text-slate-200">· approximate</span>
+          </Link>
+        )}
       </div>
 
       <section
