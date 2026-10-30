@@ -23,11 +23,14 @@ import {
 } from "../lib/weather/format";
 import type { WeatherRequest } from "../lib/weather/params";
 import { getSkyGradient } from "../lib/weather/theme";
-import { FindPlace } from "./FindPlace";
 import { ConditionIcon } from "./ConditionIcon";
 import { DailyForecastList } from "./DailyForecastList";
+import { FindPlace } from "./FindPlace";
 import { HourlyForecastStrip } from "./HourlyForecastStrip";
+import { Reveal } from "./Reveal";
+import { StaggerGrid, StaggerItem } from "./Stagger";
 import { UnitsToggle } from "./UnitsToggle";
+import { WeatherScene } from "./WeatherScene";
 
 interface DetailCardProps {
   icon: ReactNode;
@@ -38,7 +41,7 @@ interface DetailCardProps {
 
 function DetailCard({ icon, label, value, hint }: DetailCardProps) {
   return (
-    <div className="rounded-2xl bg-black/20 p-4 ring-1 ring-white/10">
+    <div className="h-full rounded-2xl bg-black/20 p-4 ring-1 ring-white/10 transition-colors duration-300 hover:bg-black/30">
       <dt className="flex items-center gap-2 text-sm text-slate-100">
         {icon}
         {label}
@@ -69,7 +72,6 @@ export async function CurrentWeatherView({
   const todayDate = forecast?.now.slice(0, 10) ?? "";
   const todayRange = forecast?.daily.find((day) => day.date === todayDate);
 
-  // نفضّل الاسم اللي اختاره المستخدم، لأن اسم OpenWeather ممكن يكون حي أو محطة قريبة
   const name = request.name ?? weather.place.name;
   const country = request.country ?? weather.place.country;
   const place = {
@@ -169,10 +171,13 @@ export async function CurrentWeatherView({
   }
 
   return (
+    // isolate + overflow-hidden: المشهد (z-index سالب) بيبقى جوا هذا الصندوق فقط
     <div
-      className={`animate-fade-in flex-1 bg-linear-to-b ${getSkyGradient(condition.id, weather.isDay)}`}
+      className={`animate-fade-in relative isolate flex-1 overflow-hidden bg-linear-to-b ${getSkyGradient(condition.id, weather.isDay)}`}
     >
-      <div className="mx-auto max-w-5xl px-4 pb-16 pt-24">
+      <WeatherScene id={condition.id} isDay={weather.isDay} />
+
+      <div className="relative mx-auto max-w-5xl px-4 pb-16 pt-24">
         <FindPlace units={units} />
 
         <section aria-labelledby="place-heading" className="mt-10">
@@ -195,11 +200,14 @@ export async function CurrentWeatherView({
           </h1>
 
           <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <ConditionIcon
-              id={condition.id}
-              isDay={weather.isDay}
-              className="h-24 w-24 text-white sm:h-32 sm:w-32"
-            />
+            <div className="animate-pop">
+              <ConditionIcon
+                id={condition.id}
+                isDay={weather.isDay}
+                animated
+                className="h-24 w-24 sm:h-32 sm:w-32"
+              />
+            </div>
             <div>
               <p className="text-7xl font-bold leading-none sm:text-8xl">
                 {formatTemp(weather.temp)}
@@ -233,8 +241,12 @@ export async function CurrentWeatherView({
 
         {forecast ? (
           <>
-            <HourlyForecastStrip hourly={forecast.hourly} />
-            <DailyForecastList daily={forecast.daily} today={todayDate} />
+            <Reveal>
+              <HourlyForecastStrip hourly={forecast.hourly} />
+            </Reveal>
+            <Reveal>
+              <DailyForecastList daily={forecast.daily} today={todayDate} />
+            </Reveal>
           </>
         ) : (
           <p
@@ -250,11 +262,13 @@ export async function CurrentWeatherView({
           <h2 id="details-heading" className="mb-4 text-lg font-semibold">
             Details
           </h2>
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <StaggerGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {cards.map(({ key, ...card }) => (
-              <DetailCard key={key} {...card} />
+              <StaggerItem key={key}>
+                <DetailCard {...card} />
+              </StaggerItem>
             ))}
-          </dl>
+          </StaggerGrid>
         </section>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
+import { MotionProvider } from "../components/MotionProvider";
 import { siteDescription, siteName } from "../lib/site";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -33,11 +34,13 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <Header />
-        <main id="main-content" className="flex flex-1 flex-col">
-          {children}
-        </main>
-        <Footer />
+        <MotionProvider>
+          <Header />
+          <main id="main-content" className="flex flex-1 flex-col">
+            {children}
+          </main>
+          <Footer />
+        </MotionProvider>
       </body>
     </html>
   );

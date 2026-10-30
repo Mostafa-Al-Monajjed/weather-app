@@ -8,7 +8,7 @@ import { siteName } from "../lib/site";
 import { buildWeatherHref } from "../lib/weather/href";
 import { parseWeatherParams } from "../lib/weather/params";
 import { POPULAR_PLACES } from "../lib/weather/popular";
-import type { Place } from "../lib/weather/types";
+import type { Place } from "../lib/weather/types";  
 
 function safeDecode(value: string) {
   try {

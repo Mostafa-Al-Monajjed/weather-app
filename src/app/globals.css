@@ -7,6 +7,7 @@
 @theme {
   --animate-fade-up: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   --animate-fade-in: fade-in 0.6s ease-out backwards;
+  --animate-pop: pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 
   @keyframes fade-up {
     from {
@@ -26,19 +27,25 @@
       opacity: 1;
     }
   }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.6) rotate(-8deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0);
+    }
+  }
 }
 
 html {
   color-scheme: dark;
-  overflow-x: hidden;
-  margin: 0;
 }
 
 body {
   background: #0b1020;
   color: #f1f5f9;
-  overflow-x: hidden;
-  margin: 0;
 }
 
 @layer base {
@@ -77,8 +84,264 @@ body {
   }
 }
 
-/* احترام إعداد "تقليل الحركة" بنظام المستخدم */
+/* ===== أيقونات الطقس: الحركة بتشتغل فقط جوا svg عليه data-animated ===== */
+[data-animated] .wx-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wx-spin 24s linear infinite;
+}
+[data-animated] .wx-drift {
+  animation: wx-drift 7s ease-in-out infinite;
+}
+[data-animated] .wx-drop {
+  animation: wx-drop 1.2s linear infinite;
+}
+[data-animated] .wx-flake {
+  animation: wx-flake 3s ease-in infinite;
+}
+[data-animated] .wx-flash {
+  animation: wx-flash 4s linear infinite;
+}
+[data-animated] .wx-twinkle {
+  animation: wx-twinkle 3s ease-in-out infinite;
+}
+[data-animated] .wx-sway {
+  animation: wx-sway 4s ease-in-out infinite;
+}
+
+@keyframes wx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes wx-drift {
+  0%,
+  100% {
+    transform: translateX(-2px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+}
+@keyframes wx-drop {
+  0% {
+    transform: translateY(-3px);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+@keyframes wx-flake {
+  0% {
+    transform: translate(0, -3px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(3px, 9px);
+    opacity: 0;
+  }
+}
+@keyframes wx-flash {
+  0%,
+  55%,
+  65%,
+  100% {
+    opacity: 1;
+  }
+  58%,
+  62% {
+    opacity: 0.25;
+  }
+}
+@keyframes wx-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes wx-sway {
+  0%,
+  100% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+/* ===== مشهد الخلفية ===== */
+.wx-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wx-scene > *,
+.wx-scene span,
+.wx-scene div {
+  position: absolute;
+}
+
+.wx-rain {
+  top: -12%;
+  width: 2px;
+  height: 56px;
+  border-radius: 2px;
+  rotate: 7deg;
+  background: linear-gradient(to bottom, transparent, rgba(186, 230, 253, 0.6));
+  animation: wx-rain-fall linear infinite;
+  will-change: transform;
+}
+@keyframes wx-rain-fall {
+  to {
+    transform: translate3d(-120px, 125vh, 0);
+  }
+}
+
+.wx-snow {
+  top: -6%;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  animation: wx-snow-fall linear infinite;
+  will-change: transform;
+}
+@keyframes wx-snow-fall {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(28px, 60vh, 0);
+  }
+  100% {
+    transform: translate3d(-12px, 120vh, 0);
+  }
+}
+
+.wx-star {
+  border-radius: 9999px;
+  background: #fff;
+  animation: wx-star-twinkle ease-in-out infinite;
+}
+@keyframes wx-star-twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.wx-cloud {
+  left: 0;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.14);
+  filter: blur(28px);
+  animation: wx-cloud-drift linear infinite;
+  will-change: transform;
+}
+@keyframes wx-cloud-drift {
+  from {
+    transform: translate3d(-70vw, 0, 0);
+  }
+  to {
+    transform: translate3d(110vw, 0, 0);
+  }
+}
+
+.wx-fog {
+  left: -20%;
+  width: 140%;
+  height: 22%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.18),
+    transparent
+  );
+  filter: blur(18px);
+  animation: wx-fog-drift ease-in-out infinite alternate;
+}
+@keyframes wx-fog-drift {
+  from {
+    transform: translate3d(-8%, 0, 0);
+  }
+  to {
+    transform: translate3d(8%, 0, 0);
+  }
+}
+
+.wx-sun-glow {
+  top: -18%;
+  right: -12%;
+  width: min(70vw, 520px);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(253, 224, 71, 0.45),
+    rgba(253, 224, 71, 0) 65%
+  );
+  animation: wx-sun-pulse 8s ease-in-out infinite;
+}
+@keyframes wx-sun-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+.wx-lightning {
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at 30% 0%,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0) 60%
+  );
+  animation: wx-lightning-flash 9s linear infinite;
+}
+@keyframes wx-lightning-flash {
+  0%,
+  4%,
+  8%,
+  100% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.5;
+  }
+  6.5% {
+    opacity: 0.15;
+  }
+  7% {
+    opacity: 0.4;
+  }
+}
+
+/* تقليل الحركة: نخفي المشهد كليًا ونوقف باقي الحركات */
 @media (prefers-reduced-motion: reduce) {
+  .wx-scene {
+    display: none;
+  }
   *,
   ::before,
   ::after {
