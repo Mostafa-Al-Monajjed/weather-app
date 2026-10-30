@@ -4,6 +4,7 @@ import "./globals.css";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { MotionProvider } from "../components/MotionProvider";
+import { WidgetProvider } from "../components/PipWidget";
 import { siteDescription, siteName } from "../lib/site";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#0b1020",
   colorScheme: "dark",
+  viewportFit: "cover", // بدونها env(safe-area-inset-*) بتكون صفر بالآيفون
 };
 
 export default function RootLayout({
@@ -35,11 +37,13 @@ export default function RootLayout({
           Skip to content
         </a>
         <MotionProvider>
-          <Header />
-          <main id="main-content" className="flex flex-1 flex-col">
-            {children}
-          </main>
-          <Footer />
+          <WidgetProvider>
+            <Header />
+            <main id="main-content" className="flex flex-1 flex-col">
+              {children}
+            </main>
+            <Footer />
+          </WidgetProvider>
         </MotionProvider>
       </body>
     </html>

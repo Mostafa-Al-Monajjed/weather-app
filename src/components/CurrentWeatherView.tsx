@@ -31,6 +31,10 @@ import { Reveal } from "./Reveal";
 import { StaggerGrid, StaggerItem } from "./Stagger";
 import { UnitsToggle } from "./UnitsToggle";
 import { WeatherScene } from "./WeatherScene";
+import { getOutfitAdvice } from "@/lib/weather/outfit";
+import { OutfitCard } from "./OutfitCard";
+import { PopOutButton } from "./PipWidget";
+import { SaveCityButton } from "./SaveCityButton";
 
 interface DetailCardProps {
   icon: ReactNode;
@@ -234,8 +238,10 @@ export async function CurrentWeatherView({
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <UnitsToggle place={place} units={units} />
+            <SaveCityButton place={place} />
+            <PopOutButton place={place} units={units} />
           </div>
         </section>
 
@@ -257,7 +263,17 @@ export async function CurrentWeatherView({
             still up to date.
           </p>
         )}
-
+        <Reveal>
+          <OutfitCard
+            advice={getOutfitAdvice({
+              feelsLike: weather.feelsLike,
+              windSpeed: weather.windSpeed,
+              conditionId: condition.id,
+              isDay: weather.isDay,
+              units,
+            })}
+          />
+        </Reveal>
         <section aria-labelledby="details-heading" className="mt-10">
           <h2 id="details-heading" className="mb-4 text-lg font-semibold">
             Details

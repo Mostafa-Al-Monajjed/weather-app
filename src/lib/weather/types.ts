@@ -63,3 +63,11 @@ export interface Forecast {
   daily: DailyPoint[];
   hourly: HourlyPoint[];
 }
+
+export interface MiniWeather {
+  temp: number;
+  feelsLike: number;
+  description: string;
+  conditionId: number;
+  isDay: boolean;
+}

@@ -1,3 +1,4 @@
+export const instant = false;
 import { MapPin } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -8,7 +9,8 @@ import { siteName } from "../lib/site";
 import { buildWeatherHref } from "../lib/weather/href";
 import { parseWeatherParams } from "../lib/weather/params";
 import { POPULAR_PLACES } from "../lib/weather/popular";
-import type { Place } from "../lib/weather/types";  
+import type { Place } from "../lib/weather/types";
+import { SavedCities } from "@/components/SavedCities";
 
 function safeDecode(value: string) {
   try {
@@ -83,7 +85,7 @@ export default async function HomePage() {
           </Link>
         )}
       </div>
-
+      <SavedCities />
       <section
         aria-labelledby="popular-heading"
         className="animate-fade-up mt-12"
