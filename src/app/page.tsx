@@ -10,7 +10,13 @@ import { buildWeatherHref } from "../lib/weather/href";
 import { parseWeatherParams } from "../lib/weather/params";
 import { POPULAR_PLACES } from "../lib/weather/popular";
 import type { Place } from "../lib/weather/types";
-import { SavedCities } from "@/components/SavedCities";
+import { SavedCities } from "../components/SavedCities";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: { absolute: `${siteName}: Live Weather, 24-Hour & 7-Day Forecast` },
+  alternates: { canonical: "/" },
+};
 
 function safeDecode(value: string) {
   try {

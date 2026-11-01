@@ -5,19 +5,23 @@ import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { MotionProvider } from "../components/MotionProvider";
 import { WidgetProvider } from "../components/PipWidget";
-import { siteDescription, siteName } from "../lib/site";
+import { siteAuthor, siteDescription, siteName, siteUrl } from "@/lib/site";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: { default: siteName, template: `%s | ${siteName}` },
   description: siteDescription,
+  applicationName: siteName,
+  authors: [{ name: siteAuthor }],
+  openGraph: { siteName, type: "website", locale: "en_US" },
 };
 
 export const viewport: Viewport = {
   themeColor: "#0b1020",
   colorScheme: "dark",
-  viewportFit: "cover", // بدونها env(safe-area-inset-*) بتكون صفر بالآيفون
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
